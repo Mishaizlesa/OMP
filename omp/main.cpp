@@ -2,10 +2,13 @@
 #include <vector>
 #include <stdio.h>
 #include <cstdio>
-#include "test.h"
+#include "kmp.h"
 using namespace std;
 typedef long long ll;
 //#define LOCAL//для стандртного ввода закомментировать
+char Find_Substr::symb[4]={'A','C','G','T'};
+std::uniform_int_distribution<int> Find_Substr::d(1,4);
+std::default_random_engine Find_Substr::rnd(std::chrono::system_clock::now().time_since_epoch().count());
 void initIO()
 {
 #ifdef LOCAL
@@ -22,11 +25,6 @@ void init(){
     cout<<"threads num = "<<omp_get_max_threads()<<"\n";
 }
 int main(){
-    init();
-    initIO();
-    int cmd;
-    cout<<"test mode/get ans mode (1/0)  ";cin>>cmd;
-    if (cmd){
-        test();
-    }else get_ans();
+    Find_Substr a(1000000);
+    a.test_kmp();
 }
