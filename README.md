@@ -6,5 +6,5 @@
 [![parallel-ratio.png](https://i.postimg.cc/W4CjhrsK/parallel-ratio.png)](https://postimg.cc/WDGxydF6)
 [![pat-rat.png](https://i.postimg.cc/QCr3q39J/pat-rat.png)](https://postimg.cc/sQKqVbJM)
 [![seq-abs.png](https://i.postimg.cc/pdDkFMvH/seq-abs.png)](https://postimg.cc/NyjR3VLJ)
-[![seq-rat-true.png](https://i.postimg.cc/xdcnfgVM/seq-rat-true.png)](https://postimg.cc/SXFwV6sx)
+[![seq-to-par.png](https://i.postimg.cc/9XGVQrK8/seq-to-par.png)](https://postimg.cc/BtQRhQqH)
 [![seq-to-par.png](https://i.postimg.cc/9XGVQrK8/seq-to-par.png)](https://postimg.cc/BtQRhQqH)
