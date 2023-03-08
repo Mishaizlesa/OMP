@@ -12,12 +12,14 @@
 #include <unordered_set>
 #include <chrono>
 #include <random>
-std::ofstream fout("/Users/mihailkozlov/Desktop/pattest.txt");
+std::ofstream fout("/Users/mihailkozlov/Desktop/hash3_2.txt");
 typedef long long ll;
 class Find_Substr{
 private:
+    int ord[256];
     std::string data;
     ll size;
+    static char symb[4];
     long long* powmod;
     const int p=31;
     const int mod=1e9+7;
@@ -42,24 +44,29 @@ private:
         return res;
     }
 public:
-    static char symb[4];
     static std::uniform_int_distribution<int> d;
     static std::default_random_engine rnd;
+    
+    
     Find_Substr(int len){
-        omp_set_max_active_levels(2);
+        ord['A']=0;ord['C']=1;ord['G']=2;ord['T']=3;
         powmod=new long long[len];
         size=len;
         data=str_generator(len);
         powmod[0]=1;
         for(int i=1;i<size;++i) powmod[i]=(p*powmod[i-1])%mod;
     }
+    
+    
     Find_Substr(const std::string& str){
-        omp_set_max_active_levels(2);
+        ord['A']=0;ord['C']=1;ord['G']=2;ord['T']=3;
         data=str;
         size=data.size();
         powmod=new long long[size];
         for(int i=1;i<size;++i) powmod[i]=(p*powmod[i-1])%mod;
     }
+    
+    
     std::vector<int>kmp_default(const int& len){
         std::vector<int>freq(size);
         int* p_c=new int[len+size+1];
@@ -166,36 +173,33 @@ public:
         {
             for(int i=0;i<=size-len;++i){
                 int sh1;
-                std::vector<int>shift(256,len-2);
+                std::vector<int>shift(64,len-2);
                 ll hash=0;
-                hash=(data[i]);
-                hash=2*hash+(data[i+1]);
-                hash=2*hash+(data[i+2]);
-                shift[hash%256]=len-3;
-                for(int j=3;j<=len-2;++j){
-                    hash=(data[i+j-2]);
-                    hash=2*hash+(data[i+j-1]);
-                    hash=2*hash+(data[i+j]);
-                    shift[hash%256]=len-1-j;
+                for(int j=2;j<=len-1;++j){
+                    int ind=ord[data[i+j-2]]*16+ord[data[i+j-1]]*4+ord[data[i+j]];
+                    if (j==len-1) sh1=shift[ind];
+                    shift[ind]=len-1-j;
                 }
-                hash=(data[i+len-3]);
-                hash=2*hash+(data[i+len-2]);
-                hash=2*hash+(data[i+len-1]);
-                sh1=(shift[hash%256]?shift[hash%256]:1);
-                shift[hash%256]=0;
-                std::string data_cpy=data+data.substr(i,len);
+                
+                if (!sh1) sh1=1;
                 int j=len-1;
+                
                 for(;;){
                     int sh=1;
-                    while (sh && j<size+len) {
-                        hash=(data_cpy[j-2]);
-                        hash=2*hash+(data_cpy[j-1]);
-                        hash=2*hash+(data_cpy[j]);
-                        sh=shift[hash%256];
+                    while (sh && j<size) {
+                        int ind=ord[data[j-2]]*16+ord[data[j-1]]*4+ord[data[j]];
+                        sh=shift[ind];
                         j+=sh;
                     }
                     if (j<size){
-                        if (data.substr(i,len)==data_cpy.substr(j-len+1,len)) freq[i]++;
+                        int is_eq=1;
+                        for(int k=0;k<len;++k){
+                            if (data[i+k]!=data[j-len+1+k]){
+                                is_eq=0;
+                                break;
+                            }
+                        }
+                        freq[i]+=is_eq;
                         j+=sh1;
                     }else{
                         break;
@@ -303,7 +307,7 @@ public:
     
     void get_ans(const int& len){
         int mmax=0;
-        auto res=boyer_moore(len,24);
+        auto res=hash3(len,24);
         std::vector<std::unordered_set<std::string>>num(size+1);
         std::string tmp;
         for(int i=0;i<res.size();++i){
@@ -345,7 +349,7 @@ public:
     
     void parallel_test(){
         
-        int len=size/10;
+        int len=(size/10>256?256:size/10);
         double time_s,dif;
         std::vector<double>res;
         time_s=omp_get_wtime();
@@ -427,6 +431,24 @@ public:
             for(auto el: res) fout<<el<<" ";
             fout<<"\n";
         }
+    }
+    void hash3_tst(){
+        int len=(size/10>256?256:size/10);
+        if (len<3) len=3;
+        double time_s,dif;
+        std::vector<double>res;
+        time_s=omp_get_wtime();
+        hash3(len,24);
+        dif=omp_get_wtime()-time_s;
+        res.push_back(dif);
+        time_s=omp_get_wtime();
+        //hash3(len,1);
+        dif=omp_get_wtime()-time_s;
+        res.push_back(dif);
+        fout<<size<<" ";
+        for(auto el: res) fout<<el<<" ";
+        fout<<"\n";
+        //std::cout<<size<<"\n";
     }
 };
 #endif /* kmp_h */
